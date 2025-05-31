@@ -1,0 +1,275 @@
+Sure thing! Here's the rewritten version of all 10 OpenCV experiments using matplotlib to display the images instead of cv2.imshow().
+
+
+---
+
+✅ Note Before Starting
+
+OpenCV loads images in BGR format
+
+matplotlib displays in RGB, so we must convert using cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+
+
+---
+
+1. Resize and Convert Image to Grayscale
+
+import cv2
+import matplotlib.pyplot as plt
+
+image = cv2.imread("image.jpg")
+resized = cv2.resize(image, (256, 256))
+gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+resized_rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+
+plt.subplot(1, 2, 1)
+plt.imshow(resized_rgb)
+plt.title("Original")
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(gray, cmap='gray')
+plt.title("Grayscale")
+plt.axis('off')
+
+plt.show()
+
+
+---
+
+2. Apply Image Filters (Blur and Sharpen)
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image = cv2.imread("image.jpg")
+blur = cv2.GaussianBlur(image, (5, 5), 0)
+
+kernel = np.array([[0, -1, 0],
+                   [-1, 5,-1],
+                   [0, -1, 0]])
+sharpened = cv2.filter2D(image, -1, kernel)
+
+images = [image, blur, sharpened]
+titles = ["Original", "Blurred", "Sharpened"]
+
+plt.figure(figsize=(12, 4))
+for i in range(3):
+    plt.subplot(1, 3, i+1)
+    rgb = cv2.cvtColor(images[i], cv2.COLOR_BGR2RGB)
+    plt.imshow(rgb)
+    plt.title(titles[i])
+    plt.axis('off')
+plt.show()
+
+
+---
+
+3. Color Space Conversion and Thresholding
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image = cv2.imread("fruits.jpg")
+hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+lower_red = np.array([0, 120, 70])
+upper_red = np.array([10, 255, 255])
+mask = cv2.inRange(hsv, lower_red, upper_red)
+
+plt.subplot(1, 2, 1)
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.title("Original")
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(mask, cmap='gray')
+plt.title("Red Mask")
+plt.axis('off')
+
+plt.show()
+
+
+---
+
+4. Edge Detection with Canny
+
+import cv2
+import matplotlib.pyplot as plt
+
+image = cv2.imread("object.jpg", cv2.IMREAD_GRAYSCALE)
+edges = cv2.Canny(image, 100, 200)
+
+plt.subplot(1, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title("Original")
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(edges, cmap='gray')
+plt.title("Canny Edges")
+plt.axis('off')
+
+plt.show()
+
+
+---
+
+5. Draw Contours on an Image
+
+import cv2
+import matplotlib.pyplot as plt
+
+image = cv2.imread("shapes.png")
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+ret, thresh = cv2.threshold(gray, 127, 255, 0)
+contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+cv2.drawContours(image, contours, -1, (0,255,0), 2)
+
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.title("Contours")
+plt.axis('off')
+plt.show()
+
+
+---
+
+6. Object Detection using Template Matching
+
+import cv2
+import matplotlib.pyplot as plt
+
+main_img = cv2.imread("scene.jpg")
+template = cv2.imread("template.jpg")
+result = cv2.matchTemplate(main_img, template, cv2.TM_CCOEFF_NORMED)
+
+_, _, _, max_loc = cv2.minMaxLoc(result)
+h, w = template.shape[:2]
+cv2.rectangle(main_img, max_loc, (max_loc[0]+w, max_loc[1]+h), (255,0,0), 2)
+
+plt.imshow(cv2.cvtColor(main_img, cv2.COLOR_BGR2RGB))
+plt.title("Template Matched")
+plt.axis('off')
+plt.show()
+
+
+---
+
+7. Real-Time Face Detection from Webcam (Matplotlib not applicable here)
+
+Matplotlib is not suitable for real-time webcam streaming, but here's a workaround to show one frame with detected face using matplotlib:
+
+import cv2
+import matplotlib.pyplot as plt
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+cap = cv2.VideoCapture(0)
+
+ret, frame = cap.read()
+if ret:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+
+    plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    plt.title("Detected Face")
+    plt.axis('off')
+    plt.show()
+
+cap.release()
+
+
+---
+
+8. Real-Time Object Tracking with Color (Single Frame Preview)
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+cap = cv2.VideoCapture(0)
+ret, frame = cap.read()
+
+if ret:
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_red = np.array([0,120,70])
+    upper_red = np.array([10,255,255])
+    mask = cv2.inRange(hsv, lower_red, upper_red)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
+
+    plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    plt.title("Tracked Object")
+    plt.axis('off')
+    plt.show()
+
+cap.release()
+
+
+---
+
+9. Simple Background Replacement (Green Screen Effect)
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+fg = cv2.imread("greenscreen.jpg")
+bg = cv2.imread("beach.jpg")
+bg = cv2.resize(bg, (fg.shape[1], fg.shape[0]))
+
+hsv = cv2.cvtColor(fg, cv2.COLOR_BGR2HSV)
+lower_green = np.array([35, 100, 100])
+upper_green = np.array([85, 255, 255])
+mask = cv2.inRange(hsv, lower_green, upper_green)
+
+mask_inv = cv2.bitwise_not(mask)
+fg_part = cv2.bitwise_and(fg, fg, mask=mask_inv)
+bg_part = cv2.bitwise_and(bg, bg, mask=mask)
+final = cv2.add(fg_part, bg_part)
+
+plt.imshow(cv2.cvtColor(final, cv2.COLOR_BGR2RGB))
+plt.title("Green Screen Replacement")
+plt.axis('off')
+plt.show()
+
+
+---
+
+10. Read Video and Count Frames
+
+import cv2
+import random
+import matplotlib.pyplot as plt
+
+cap = cv2.VideoCapture("video.mp4")
+frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+print("Total frames:", frame_count)
+
+random_frames = random.sample(range(frame_count), 5)
+
+for i in random_frames:
+    cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+    ret, frame = cap.read()
+    if ret:
+        plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        plt.title(f"Frame {i}")
+        plt.axis('off')
+        plt.show()
+
+cap.release()
+
+
+---
+
+Let me know if you'd like these organized in a .py script or Jupyter Notebook! Or maybe you want to add sliders or buttons with matplotlib for some interactivity? 😉
+
